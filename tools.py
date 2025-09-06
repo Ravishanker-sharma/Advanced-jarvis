@@ -3,6 +3,7 @@ import webbrowser
 from pywhatkit import playonyt
 # from AppOpener import open, close
 from datetime import datetime
+import subprocess
 import os
 
 def open_website(url: str):
@@ -62,3 +63,37 @@ def execute_system_command(command: str):
     os.system(command)
     return f"Executed command: {command}"
 
+
+def show_popup(title, message):
+    """Shows a desktop notification popup.
+    Args:
+        title (str): The title of the popup.
+        message (str): The message content of the popup.
+    Returns:
+        str: Confirmation message."""
+    command = [
+        "terminal-notifier",
+        "-title", title,
+        "-message", message,
+        "-sound", "default"
+    
+    ]
+
+    subprocess.run(command)
+    return f"Displayed popup with title: {title}"
+
+
+def Read_Edit_files(filename: str, content: str , mode: str = 'w'):
+    """Reads or writes content to a file.
+        Modes : 
+            'r' - Read mode
+            'w' - Write mode (overwrites existing content)
+            'a' - Append mode (adds content to the end of the file)
+        Args:
+            filename (str): The name of the file.
+            content (str): The content to write to the file.
+        Returns:
+            str: Confirmation message."""
+    with open(filename, mode) as file:
+        file.write(f"""{content}""")
+    return f"{mode} content to {filename}."

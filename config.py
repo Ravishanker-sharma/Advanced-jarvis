@@ -4,6 +4,7 @@ import os
 
 load_dotenv()
 api = os.getenv("GEMINI_API_KEY")
+mcp_server_url = os.getenv("MCP_SERVER_URL")
 
 
 llm = ChatGoogleGenerativeAI(

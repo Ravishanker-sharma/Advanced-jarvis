@@ -1,60 +1,54 @@
-from chatbot import chat
-import speech_recognition as sr
-# import pyttsx3
 import time
+import asyncio
+import speech_recognition as sr
+from chatbot import build_app, jarvis
 import AppKit
+from tools import show_popup
 
-
-
+app = asyncio.run(build_app())
 
 recognizer = sr.Recognizer()
 recognizer.energy_threshold = 25
 
+WAKE_WORD = "jarvis"
+ACTIVE_WINDOW = 5  # seconds to stay active after wake word
 is_listening = True
 
-# engine = pyttsx3.init('sapi5')
-# engine.setProperty('rate', 160)  # Adjusted speed
-# voices = engine.getProperty('voices')
-# engine.setProperty('voice', voices[0].id)
-
-
 def say_text(text, voice="com.apple.voice.compact.en-IN.Rishi", rate=175, volume=1.0):
-    """Speak text using macOS TTS with optional voice, rate, and volume."""
     synth = AppKit.NSSpeechSynthesizer.alloc().init()
-    
     if voice:
         synth.setVoice_(voice)
-    synth.setRate_(rate)     # speaking rate (default ~175)
-    synth.setVolume_(volume) # volume 0.0 – 1.0
-
+    synth.setRate_(rate)
+    synth.setVolume_(volume)
     synth.startSpeakingString_(text)
-
-    # keep the script alive until speech is finished
     while synth.isSpeaking():
         time.sleep(0.1)
 
 def listen():
-    """Continuously listens for commands in the background."""
     global is_listening
+    active_until = 0  # timestamp until which assistant stays active
 
     while is_listening:
         with sr.Microphone() as source:
             print("🎤 Listening...")
             recognizer.adjust_for_ambient_noise(source, duration=0.5)
             try:
-                audio = recognizer.listen(source, phrase_time_limit=5)
+                audio = recognizer.listen(source, phrase_time_limit=None, timeout=None)
                 text = recognizer.recognize_google(audio).lower()
                 print(text)
 
-                if "jarvis" in text:  # Only process if wake word is detected
+                current_time = time.time()
+                # Check if wake word is detected or we are within active window
+                if WAKE_WORD in text or current_time < active_until:
                     print("Working!")
-                    output = chat(text)
-                    print(f"🤖 {output}")
+                    output = asyncio.run(jarvis(app, text))
+                    show_popup("Jarvis", output)
                     say_text(output)
-                    # engine.say(output)
-                    # engine.runAndWait()
+                    # Extend the active window
+                    active_until = time.time() + ACTIVE_WINDOW
+
             except sr.UnknownValueError:
-                pass  # Ignore unrecognized speech
+                pass
             except sr.RequestError:
                 print("⚠️ Speech recognition service unavailable.")
             except Exception as e:
