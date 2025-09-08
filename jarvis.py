@@ -11,7 +11,7 @@ recognizer = sr.Recognizer()
 recognizer.energy_threshold = 25
 
 WAKE_WORD = "jarvis"
-ACTIVE_WINDOW = 5  # seconds to stay active after wake word
+ACTIVE_WINDOW = 5  # seconds to stay active after wake word 
 is_listening = True
 
 def say_text(text, voice="com.apple.voice.compact.en-IN.Rishi", rate=175, volume=1.0):

@@ -14,5 +14,3 @@ llm = ChatGoogleGenerativeAI(
 model_kwargs={"streaming": True}
 )
 
-
-os.system("say 'hello, i am your voice assistant jarvis'")

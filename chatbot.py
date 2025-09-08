@@ -6,7 +6,7 @@ from scraper import get_data
 from langchain.agents import Tool
 from langgraph.checkpoint.memory import MemorySaver
 from config import llm,mcp_server_url
-from tools import open_website, play_youtube_video, get_current_date, execute_system_command , show_popup
+from tools import open_website, play_youtube_video, get_current_date, execute_system_command , show_popup, write_file, read_file, append_file ,get_user_input
 from langchain_mcp_adapters.client import MultiServerMCPClient
 
 
@@ -55,6 +55,26 @@ async def build_app():
             name="ShowPopup",
             func=show_popup,
             description="Shows a desktop notification popup with a title and message. Input should be in the format 'title | message'."
+        ),
+        Tool(
+            name="WriteFile",
+            func=write_file,
+            description="Writes content to a file. Input should be in the format 'filename | content'."
+        ),
+        Tool(
+            name="ReadFile",
+            func=read_file,
+            description="Reads content from a file. Input should be the filename as a string."
+        ),
+        Tool(
+            name="AppendFile",
+            func=append_file,
+            description="Appends content to a file. Input should be in the format 'filename | content'."
+        ),
+        Tool(
+            name="GetUserInput",
+            func=get_user_input,
+            description="Displays a popup window to get user input. Input should be the message to display in the popup."
         )
     ]
 
@@ -86,9 +106,13 @@ async def jarvis(app, message, thread_id="1"):
         You are a Jarvis Desktop Voice Assistant Developed by CODEX.
         If you think some task can be better accomplished by using a tool, you must use the appropriate tool.
         If you don’t have a tool to do a task but you can do it by executing a system command, you must use the tool named "ExecuteSystemCommand".
-        Keep your replies concise , to the point and minimal , keep it under 50 words.
+        Keep your replies concise , to the point and minimal , keep it under 50 words. (If word limit exceeds use tool to save information in a file and tell user that you have saved that information to a file with filename).
         As you are voice assistant do not use any special characters in your response or something which is not easy to speak out loud.
         Use the tool named "ShowPopup" to show any kind of notification or popup on the desktop.
+        If something is too big for sepaking out loud for example a code or a essay , you can use the tool to write that information to a file and tell the user that you have saved that information to a file with filename.
+        If you do not have tools for something such as genrating a code or essay , you can do it by yourself (You are a AI).
+        You can use the tool named "GetUserInput" to get input from user in form of a popup window. You should use this tool when , something is difficult to be detected in speech to text form such as email ids , passwords , specific names or places.
+        Always reconfirm email ids or passwords by spelling them out chracter by character. ( If user says it is wrong , use GetUserInput tool to get the correct email id or password).
         '''
         msg = {"messages": [{"role": "system", "content": prompt},
                             {"role": "user", "content": message}]}
