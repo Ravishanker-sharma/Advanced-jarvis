@@ -11,7 +11,7 @@ from langchain_mcp_adapters.client import MultiServerMCPClient
 
 
 client = MultiServerMCPClient({
-    "Genral": {
+    "General": {
         "url": mcp_server_url,
         "transport": "streamable_http",
     }

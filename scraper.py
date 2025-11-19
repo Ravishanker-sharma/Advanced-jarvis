@@ -1,10 +1,13 @@
-import requests
-from bs4 import BeautifulSoup
-from yahooseachengine import yahoo_search
-from langchain.agents import tool
+import random
 import re
 import threading
-import random
+
+import requests
+from bs4 import BeautifulSoup
+from langchain.agents import tool
+
+from yahooseachengine import yahoo_search
+
 data = []
 lock = threading.Lock()
 HEADERS_LIST = [
